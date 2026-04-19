@@ -1,0 +1,249 @@
+:root {
+    --primary-color: #E6F4F1; /* pastel light blue/mint */
+    --secondary-color: #FFF9D1; /* pastel yellow */
+    --text-color: #4A5568;
+    --accent-color: #7ED3C7;
+    --bg-color: #F8FDFF;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Kosugi Maru', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+header {
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.header-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    text-align: center;
+}
+
+.header-container h1 {
+    font-size: 1.5rem;
+    color: var(--accent-color);
+}
+
+main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 6rem 2rem 2rem;
+}
+
+section {
+    margin-bottom: 5rem;
+}
+
+h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    color: var(--accent-color);
+    position: relative;
+    display: inline-block;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+h2::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: var(--secondary-color);
+    border-radius: 2px;
+}
+
+/* Hero Section */
+#hero {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh;
+}
+
+.hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 2rem;
+}
+
+@media (min-width: 768px) {
+    .hero-content {
+        flex-direction: row;
+        text-align: left;
+        gap: 4rem;
+    }
+}
+
+.profile-img {
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 8px solid var(--primary-color);
+    box-shadow: 0 10px 25px rgba(126, 211, 199, 0.3);
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+    100% { transform: translateY(0px); }
+}
+
+.hero-text h2 {
+    font-size: 2.5rem;
+    color: var(--text-color);
+    left: 0;
+    transform: none;
+    text-align: left;
+}
+
+.hero-text h2::after {
+    display: none;
+}
+
+.hero-text h2 span {
+    color: var(--accent-color);
+    font-size: 3rem;
+}
+
+.hero-text p {
+    font-size: 1.2rem;
+    margin-top: 1rem;
+    background: linear-gradient(120deg, var(--secondary-color) 0%, transparent 100%);
+    display: inline;
+    padding: 0.5rem;
+    border-radius: 8px;
+}
+
+/* Cards Section */
+.cards-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .cards-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.info-card {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-top: 5px solid var(--secondary-color);
+}
+
+.info-card:nth-child(2) {
+    border-top-color: var(--primary-color);
+}
+
+.info-card:nth-child(3) {
+    border-top-color: var(--accent-color);
+}
+
+.info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.info-card h3 {
+    margin-bottom: 1rem;
+    color: var(--accent-color);
+}
+
+/* Perspective Section */
+.perspective-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+@media (min-width: 768px) {
+    .perspective-content {
+        flex-direction: row;
+    }
+}
+
+.text-box {
+    flex: 1;
+    background: linear-gradient(135deg, var(--primary-color) 0%, white 100%);
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.text-box h3 {
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+/* Vision Section */
+.vision-content {
+    background-color: var(--secondary-color);
+    padding: 3rem;
+    border-radius: 20px;
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 2rem;
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    margin-top: 2rem;
+}
+
+/* Animations */
+.fade-in {
+    opacity: 0;
+    animation: fadeInAnim 1s ease forwards;
+}
+
+@keyframes fadeInAnim {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.scroll-anim {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.scroll-anim.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
