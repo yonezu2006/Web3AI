@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日記カケイボ</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sky:#e0f4fb;--sky-mid:#7ecfe8;--sky-deep:#2496c8;--sky-dark:#155e8a;
+  --white:#fff;--surface:#f4fafd;--border:rgba(36,150,200,0.18);
+  --text:#1a3a4a;--muted:#5a8a9f;--green:#2eab7a;--red:#e05a5a;
+}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--surface);color:var(--text);min-height:100vh}
+.nav{background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 10px;height:52px;gap:2px;overflow-x:auto}
+.nav-logo{font-size:16px;font-weight:900;flex-shrink:0;margin-right:6px;letter-spacing:1px}
+.nav-tab{padding:6px 11px;border-radius:20px;font-size:12px;cursor:pointer;border:none;background:none;color:var(--muted);font-family:inherit;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.nav-tab.active{background:var(--sky);color:var(--sky-dark);font-weight:600}
+.nav-tab:hover:not(.active){background:var(--surface)}
+.screen{display:none;padding:14px 16px 40px}
+.screen.active{display:block}
+
+/* BALANCE */
+.balance-total{background:var(--sky-deep);color:white;border-radius:14px;padding:16px 20px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.lbl{font-size:12px;opacity:.8;margin-bottom:2px}
+.amt{font-size:26px;font-weight:700}
+.balance-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.bal-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px}
+.bal-lbl{font-size:11px;color:var(--muted);margin-bottom:3px}
+.bal-amt{font-size:18px;font-weight:700;color:var(--sky-dark)}
+.sec{font-size:12px;font-weight:600;color:var(--muted);margin:14px 0 7px;letter-spacing:.4px}
+.chart-wrap{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px}
+.bar-lbl{width:70px;color:var(--muted);text-align:right;flex-shrink:0;font-size:11px}
+.bar-bg{flex:1;background:var(--sky);border-radius:4px;height:13px;overflow:hidden}
+.bar-fill{height:100%;background:var(--sky-deep);border-radius:4px;transition:width .4s}
+.bar-val{width:56px;text-align:right;font-weight:600;font-size:12px}
+.recent-list{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.rec-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border)}
+.rec-item:last-child{border-bottom:none}
+.rec-icon{width:30px;height:30px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.rec-desc{flex:1;font-size:13px}
+.rec-sub{font-size:11px;color:var(--muted)}
+.rec-amt{font-size:13px;font-weight:700}
+.minus{color:var(--red)}.plus{color:var(--green)}
+.empty{text-align:center;color:var(--muted);font-size:13px;padding:20px 0}
+
+/* DIARY INPUT */
+.diary-sub{font-size:12px;color:var(--muted);margin-bottom:12px}
+textarea{width:100%;border:1px solid var(--border);border-radius:10px;padding:11px;font-size:14px;font-family:inherit;color:var(--text);background:var(--white);resize:none;outline:none;transition:border .15s}
+textarea:focus{border-color:var(--sky-mid)}
+.img-row{display:flex;gap:8px;margin:9px 0;align-items:center}
+.img-btn{padding:6px 12px;border:1px dashed var(--sky-mid);border-radius:8px;background:none;font-size:12px;color:var(--sky-dark);cursor:pointer;font-family:inherit}
+.img-preview{width:52px;height:52px;border-radius:8px;object-fit:cover;border:1px solid var(--border);display:none}
+.main-btn{width:100%;padding:12px;background:var(--sky-deep);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:8px;transition:opacity .15s}
+.main-btn:hover{opacity:.88}
+.main-btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* REVIEW SCREEN */
+.review-section{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px}
+.review-title{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px}
+.review-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.review-item:last-child{border-bottom:none}
+.review-item.excluded{opacity:.4;text-decoration:line-through}
+.review-cat{font-size:11px;background:var(--sky);color:var(--sky-dark);padding:2px 8px;border-radius:10px;flex-shrink:0}
+.review-text{flex:1;color:var(--text)}
+.review-exclude-btn{padding:3px 10px;border:1px solid var(--red);border-radius:12px;background:none;font-size:11px;color:var(--red);cursor:pointer;font-family:inherit;flex-shrink:0}
+.review-exclude-btn.undo{border-color:var(--sky-mid);color:var(--sky-mid)}
+.sentence-item{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer}
+.sentence-item:last-child{border-bottom:none}
+.sentence-item.selected{color:var(--sky-dark);font-weight:600}
+.sentence-check{width:18px;height:18px;border:2px solid var(--border);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px}
+.sentence-check.checked{background:var(--sky-deep);border-color:var(--sky-deep);color:white}
+
+/* CHAT */
+.chat-area{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:12px;min-height:180px;max-height:280px;overflow-y:auto;margin-bottom:10px;display:flex;flex-direction:column;gap:8px}
+.msg{max-width:88%;padding:8px 12px;border-radius:10px;font-size:13px;line-height:1.5}
+.msg.ai{background:var(--sky);color:var(--sky-dark);align-self:flex-start;border-bottom-left-radius:2px}
+.msg.user{background:var(--sky-deep);color:white;align-self:flex-end;border-bottom-right-radius:2px}
+.msg.thinking{background:var(--sky);color:var(--muted);font-style:italic;font-size:12px}
+.quote{font-size:11px;background:rgba(36,150,200,.1);border-left:3px solid var(--sky-mid);padding:4px 8px;border-radius:0 6px 6px 0;color:var(--sky-dark);font-style:italic;align-self:flex-start;max-width:88%}
+.choice-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.choice-btn{padding:5px 12px;border:1px solid var(--sky-mid);border-radius:16px;background:var(--white);font-size:12px;color:var(--sky-dark);cursor:pointer;font-family:inherit;transition:all .12s}
+.choice-btn:hover{background:var(--sky)}
+.choice-btn.selected{background:var(--sky-deep);color:white;border-color:var(--sky-deep)}
+.amt-row{display:flex;gap:6px;margin-top:6px}
+.amt-in{flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none}
+.amt-in:focus{border-color:var(--sky-mid)}
+.amt-send{padding:7px 14px;background:var(--sky-deep);color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit}
+
+/* DIARY LIST */
+.diary-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer;transition:box-shadow .15s}
+.diary-card:hover{box-shadow:0 2px 12px rgba(36,150,200,.12)}
+.diary-date{font-size:12px;color:var(--sky-deep);font-weight:600;margin-bottom:4px}
+.diary-preview{font-size:13px;color:var(--text);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.diary-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.diary-tag{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--sky);color:var(--sky-dark)}
+.diary-thumb{width:48px;height:48px;border-radius:8px;object-fit:cover;border:1px solid var(--border);flex-shrink:0}
+.diary-card-inner{display:flex;gap:10px;align-items:flex-start}
+.diary-card-text{flex:1;min-width:0}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;display:flex;align-items:flex-end;justify-content:center}
+.modal{background:var(--white);border-radius:16px 16px 0 0;padding:20px 16px 32px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto}
+.modal-title{font-size:14px;font-weight:700;color:var(--sky-dark);margin-bottom:10px}
+.modal-body{font-size:13px;line-height:1.8;color:var(--text);white-space:pre-wrap}
+.modal-img{width:100%;border-radius:10px;margin-bottom:10px;object-fit:cover;max-height:220px}
+.modal-close{float:right;background:none;border:none;font-size:18px;cursor:pointer;color:var(--muted);margin-top:-4px}
+
+/* SETTINGS */
+.set-section{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+.set-lbl{font-size:12px;color:var(--muted);margin-bottom:4px}
+.set-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.set-row:last-child{margin-bottom:0}
+.set-in{flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none}
+.set-in:focus{border-color:var(--sky-mid)}
+.set-save{padding:7px 14px;background:var(--sky-deep);color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit}
+.spinner{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:4px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.mock-badge{display:inline-block;background:#fff3cd;color:#856404;font-size:11px;padding:2px 8px;border-radius:8px;margin-left:6px;border:1px solid #ffc107}
+</style>
+</head>
+<body>
+<div class="nav">
+  <div class="nav-logo"><span style="color:#f97316">日</span><span style="color:#ec4899">記</span><span style="color:#8b5cf6">カ</span><span style="color:#2496c8">ケ</span><span style="color:#10b981">イ</span><span style="color:#f59e0b">ボ</span></div>
+  <button class="nav-tab active" onclick="showScreen('dashboard',this)">残高</button>
+  <button class="nav-tab" onclick="showScreen('diary',this)">日記</button>
+  <button class="nav-tab" onclick="showScreen('diarylist',this)">日記一覧</button>
+  <button class="nav-tab" onclick="showScreen('settings',this)">設定</button>
+</div>
+
+<!-- DASHBOARD -->
+<div class="screen active" id="screen-dashboard">
+  <div class="balance-total">
+    <div><div class="lbl">合計残高</div><div class="amt" id="total-bal">¥0</div></div>
+    <div style="font-size:26px;opacity:.45">💰</div>
+  </div>
+  <div class="balance-grid">
+    <div class="bal-card"><div class="bal-lbl">💴 現金</div><div class="bal-amt" id="bal-cash">¥0</div></div>
+    <div class="bal-card"><div class="bal-lbl">📱 PayPay</div><div class="bal-amt" id="bal-paypay">¥0</div></div>
+    <div class="bal-card"><div class="bal-lbl">🏦 銀行</div><div class="bal-amt" id="bal-bank">¥0</div></div>
+  </div>
+  <div class="sec">今月の支出（カテゴリ別）</div>
+  <div class="chart-wrap" id="chart-area"><div class="empty">まだ記録がありません</div></div>
+  <div class="sec">最近の記録</div>
+  <div class="recent-list" id="recent-list"><div class="rec-item"><div class="empty" style="width:100%">まだ記録がありません</div></div></div>
+</div>
+
+<!-- DIARY -->
+<div class="screen" id="screen-diary">
+  <div style="font-size:15px;font-weight:700;margin-bottom:3px">今日の日記を書く <span class="mock-badge">デモ版</span></div>
+  <div class="diary-sub">書いた内容からAIが支出・収入を自動で検出します</div>
+  <textarea id="diary-text" rows="5" placeholder="例）忍足侑士のアクスタを買った．帰りにトマトを買った．"></textarea>
+  <div class="img-row">
+    <button class="img-btn" onclick="document.getElementById('img-input').click()">📷 画像を追加</button>
+    <input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImg(event)">
+    <img class="img-preview" id="img-preview">
+    <span id="img-name" style="font-size:11px;color:var(--muted)"></span>
+  </div>
+  <button class="main-btn" id="analyze-btn" onclick="analyzeDiary()">AIに分析してもらう ✨</button>
+
+  <!-- REVIEW PANEL -->
+  <div id="review-panel" style="display:none;margin-top:14px">
+    <div class="sec">📋 検出結果を確認</div>
+
+    <div class="review-section">
+      <div class="review-title">✅ 検出されたもの（除外したい場合はボタンを押してください）</div>
+      <div id="review-detected"></div>
+    </div>
+
+    <div class="review-section">
+      <div class="review-title">➕ 検出されなかった文（追加したい場合はタップしてください）</div>
+      <div id="review-undetected"></div>
+    </div>
+
+    <button class="main-btn" onclick="startConfirmFlow()">これで確認する →</button>
+  </div>
+
+  <!-- CHAT CONFIRM -->
+  <div id="chat-section" style="margin-top:14px;display:none">
+    <div class="sec">AIとの確認</div>
+    <div class="chat-area" id="chat-area"></div>
+    <div id="interact-area"></div>
+  </div>
+</div>
+
+<!-- DIARY LIST -->
+<div class="screen" id="screen-diarylist">
+  <div style="font-size:15px;font-weight:700;margin-bottom:3px">日記一覧</div>
+  <div class="diary-sub">過去の日記を確認できます</div>
+  <div id="diary-list-area"><div class="empty">まだ日記がありません</div></div>
+</div>
+
+<!-- SETTINGS -->
+<div class="screen" id="screen-settings">
+  <div class="sec">初期残高の設定</div>
+  <div class="set-section">
+    <div class="set-lbl">💴 現金</div>
+    <div class="set-row"><input class="set-in" type="number" id="init-cash" placeholder="例）5000"><button class="set-save" onclick="saveBalance('cash','init-cash','bal-cash')">保存</button></div>
+    <div class="set-lbl">📱 PayPay</div>
+    <div class="set-row"><input class="set-in" type="number" id="init-paypay" placeholder="例）3000"><button class="set-save" onclick="saveBalance('paypay','init-paypay','bal-paypay')">保存</button></div>
+    <div class="set-lbl">🏦 銀行</div>
+    <div class="set-row"><input class="set-in" type="number" id="init-bank" placeholder="例）50000"><button class="set-save" onclick="saveBalance('bank','init-bank','bal-bank')">保存</button></div>
+  </div>
+  <div class="sec">データ管理</div>
+  <div class="set-section">
+    <div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:10px">データはこのブラウザに保存されます。リロードしても消えません。</div>
+    <button class="set-save" style="background:var(--red);width:100%;padding:10px" onclick="clearAllData()">⚠️ 全データをリセット</button>
+  </div>
+</div>
+
+<!-- FULLIMG OVERLAY -->
+<div id="fullimg-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:200;align-items:center;justify-content:center;cursor:zoom-out" onclick="this.style.display='none'">
+  <img id="fullimg-el" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:4px">
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" style="display:none" onclick="closeModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('modal').style.display='none'">✕</button>
+    <div class="modal-title" id="modal-title"></div>
+    <img class="modal-img" id="modal-img" style="display:none">
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+const CATS={食費:'🍜',交際費:'👥',交通費:'🚃',推し活:'⭐',娯楽費:'🎮',医療美容費:'💊',その他:'📦',収入:'💚'};
+const CAT_KEYS=['食費','交際費','交通費','推し活','娯楽費','医療美容費','その他'];
+const PAYS=['現金','PayPay','銀行','その他'];
+const INCOMES=['お小遣い','バイト代','その他'];
+const PATTERNS=[
+  {keys:['ケーキ','パフェ','スイーツ','デザート','アイス'],cat:'食費',desc:'スイーツ代',lo:400,hi:900},
+  {keys:['カフェ','コーヒー','ラテ','スタバ','ドリンク'],cat:'食費',desc:'カフェ代',lo:400,hi:800},
+  {keys:['ランチ','昼ごはん','昼飯','定食'],cat:'食費',desc:'ランチ代',lo:600,hi:1200},
+  {keys:['コンビニ','セブン','ファミマ','ローソン'],cat:'食費',desc:'コンビニ',lo:300,hi:700},
+  {keys:['ご飯','夕食','夕ごはん','晩ごはん','外食','レストラン','焼肉','ラーメン','寿司','うどん','そば','パスタ','トマト','野菜','食材','スーパー','お惣菜','弁当'],cat:'食費',desc:'食事・食材',lo:300,hi:2000},
+  {keys:['友達','友人','みんな','飲み','居酒屋'],cat:'交際費',desc:'友達との食事',lo:1500,hi:4000},
+  {keys:['ライブ','グッズ','推し','アクスタ','缶バッジ','缶バッチ','缶バ','ぬいぐるみ','ぬい','フィギュア','写真集','ポスター','アクリル','アクキー','うちわ','タオル','トレカ','ブロマイド','ペンライト','コラボ'],cat:'推し活',desc:'推し活グッズ',lo:500,hi:5000},
+  {keys:['課金','ガチャ','アプリ内購入'],cat:'娯楽費',desc:'ゲーム課金',lo:500,hi:3000},
+  {keys:['ゲーム','アニメ','映画','カラオケ','遊園地','ボウリング'],cat:'娯楽費',desc:'娯楽',lo:500,hi:3000},
+  {keys:['病院','薬','ドラッグストア'],cat:'医療美容費',desc:'医療費',lo:500,hi:3000},
+  {keys:['コスメ','美容院','美容室','化粧','ネイル'],cat:'医療美容費',desc:'美容代',lo:1000,hi:8000},
+  {keys:['電車','バス','交通','タクシー'],cat:'交通費',desc:'交通費',lo:200,hi:600},
+  {keys:['お小遣い','小遣い'],type:'income',itype:'お小遣い',desc:'お小遣い',lo:1000,hi:5000},
+  {keys:['バイト','バイト代','給料'],type:'income',itype:'バイト代',desc:'バイト代',lo:5000,hi:30000},
+];
+
+const S={balances:{cash:0,paypay:0,bank:0},transactions:[],diaries:[],pending:[],idx:0,_currentDiaryText:'',_imgBase64:null,_allSentences:[],_detectedItems:[]};
+
+function saveToLS(){
+  // 画像はlocalStorageサイズ節約のため別キーで保存
+  const main={balances:S.balances,transactions:S.transactions,diaries:S.diaries.map(d=>({...d,img:undefined}))};
+  localStorage.setItem('nikki_kakeibo',JSON.stringify(main));
+  // 画像だけ別保存
+  S.diaries.forEach((d,i)=>{ if(d.img) try{localStorage.setItem('nikki_img_'+i,d.img);}catch(e){} });
+}
+function loadFromLS(){
+  try{
+    const d=localStorage.getItem('nikki_kakeibo');if(!d)return;
+    const p=JSON.parse(d);
+    if(p.balances)S.balances=p.balances;
+    if(p.transactions)S.transactions=p.transactions;
+    if(p.diaries){
+      S.diaries=p.diaries;
+      S.diaries.forEach((d,i)=>{ const img=localStorage.getItem('nikki_img_'+i); if(img)d.img=img; });
+    }
+    document.getElementById('init-cash').value=S.balances.cash||'';
+    document.getElementById('init-paypay').value=S.balances.paypay||'';
+    document.getElementById('init-bank').value=S.balances.bank||'';
+  }catch(e){}
+}
+function clearAllData(){
+  if(!confirm('本当に全データを削除しますか？'))return;
+  localStorage.clear();
+  S.balances={cash:0,paypay:0,bank:0};S.transactions=[];S.diaries=[];
+  renderDashboard();alert('データをリセットしました');
+}
+function showScreen(name,btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='dashboard')renderDashboard();
+  if(name==='diarylist')renderDiaryList();
+}
+function fmt(n){return '¥'+Math.round(n).toLocaleString('ja-JP');}
+function renderDashboard(){
+  const b=S.balances;
+  document.getElementById('bal-cash').textContent=fmt(b.cash);
+  document.getElementById('bal-paypay').textContent=fmt(b.paypay);
+  document.getElementById('bal-bank').textContent=fmt(b.bank);
+  document.getElementById('total-bal').textContent=fmt(b.cash+b.paypay+b.bank);
+  const txs=S.transactions;
+  const ca=document.getElementById('chart-area');
+  if(!txs.length){ca.innerHTML='<div class="empty">まだ記録がありません</div>';}
+  else{
+    const ct={};txs.filter(t=>t.type==='expense').forEach(t=>{ct[t.category]=(ct[t.category]||0)+t.amount;});
+    const max=Math.max(...Object.values(ct),1);
+    ca.innerHTML=Object.entries(ct).map(([c,a])=>`<div class="bar-row"><div class="bar-lbl">${CATS[c]||'📦'} ${c}</div><div class="bar-bg"><div class="bar-fill" style="width:${Math.round(a/max*100)}%"></div></div><div class="bar-val">${fmt(a)}</div></div>`).join('');
+  }
+  const rl=document.getElementById('recent-list');
+  if(!txs.length){rl.innerHTML='<div class="rec-item"><div class="empty" style="width:100%">まだ記録がありません</div></div>';}
+  else{rl.innerHTML=[...txs].reverse().slice(0,6).map(t=>`<div class="rec-item"><div class="rec-icon">${CATS[t.category]||'📦'}</div><div class="rec-desc">${t.desc}<div class="rec-sub">${t.method}・${t.date}</div></div><div class="rec-amt ${t.type==='expense'?'minus':'plus'}">${t.type==='expense'?'－':'＋'}${fmt(t.amount)}</div></div>`).join('');}
+}
+function renderDiaryList(){
+  const area=document.getElementById('diary-list-area');
+  if(!S.diaries.length){area.innerHTML='<div class="empty">まだ日記がありません</div>';return;}
+  area.innerHTML=[...S.diaries].reverse().map((d,i)=>{
+    const realIdx=S.diaries.length-1-i;
+    const tags=[...new Set((d.transactions||[]).map(t=>t.category))];
+    const thumb=d.img?`<img class="diary-thumb" src="${d.img}">`:'';
+    return`<div class="diary-card" onclick="openDiary(${realIdx})">
+      <div class="diary-card-inner">
+        ${thumb}
+        <div class="diary-card-text">
+          <div class="diary-date">📅 ${d.date}</div>
+          <div class="diary-preview">${d.text}</div>
+          <div class="diary-tags">${tags.map(t=>`<span class="diary-tag">${CATS[t]||'📦'} ${t}</span>`).join('')}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function openDiary(idx){
+  const d=S.diaries[idx];
+  document.getElementById('modal-title').textContent='📅 '+d.date;
+  const imgEl=document.getElementById('modal-img');
+  if(d.img){imgEl.src=d.img;imgEl.style.display='block';imgEl.style.cursor='zoom-in';imgEl.onclick=()=>openFullImg(d.img);}
+  else{imgEl.style.display='none';imgEl.onclick=null;}
+  let body=d.text+'\n\n';
+  if(d.transactions&&d.transactions.length){body+='【記録した支出・収入】\n';d.transactions.forEach(t=>{body+=`${t.type==='expense'?'－':'＋'} ${fmt(t.amount)} ${t.category} (${t.method})\n`;});}
+  document.getElementById('modal-body').textContent=body;
+  document.getElementById('modal').style.display='flex';
+}
+function openFullImg(src){
+  const ov=document.getElementById('fullimg-overlay');
+  document.getElementById('fullimg-el').src=src;
+  ov.style.display='flex';
+}
+function closeModal(e){if(e.target.id==='modal')document.getElementById('modal').style.display='none';}
+function saveBalance(type,inputId,displayId){
+  const v=parseInt(document.getElementById(inputId).value)||0;
+  S.balances[type]=v;
+  document.getElementById(displayId).textContent=fmt(v);
+  document.getElementById('total-bal').textContent=fmt(S.balances.cash+S.balances.paypay+S.balances.bank);
+  saveToLS();
+  const lbl={cash:'現金',paypay:'PayPay',bank:'銀行'};
+  alert((lbl[type]||type)+'の残高を '+fmt(v)+' に設定しました ✓');
+}
+function handleImg(e){
+  const file=e.target.files[0];if(!file)return;
+  document.getElementById('img-name').textContent='📎 '+file.name;
+  const r=new FileReader();
+  r.onload=d=>{
+    const p=document.getElementById('img-preview');p.src=d.target.result;p.style.display='block';
+    S._imgBase64=d.target.result;
+  };
+  r.readAsDataURL(file);
+}
+function splitSentences(text){
+  const byPunct=text.split(/[。．，、.!！?？\n]/).map(s=>s.trim()).filter(s=>s.length>0);
+  const result=[];
+  for(const seg of byPunct){
+    const parts=seg.split(/(?<=買った|購入した|課金した|払った|もらった|いただいた)/g);
+    for(const p of parts){if(p.trim().length>0)result.push(p.trim());}
+  }
+  return result.length>0?result:[text];
+}
+function guessCategoryFromBuy(sentence){
+  const oshiHints=['グッズ','アクスタ','缶バ','缶バッジ','缶バッチ','ぬい','フィギュア','写真集','ポスター','アクリル','うちわ','トレカ','ブロマイド','ペンライト','コラボ','推し'];
+  const foodHints=['野菜','食材','肉','魚','果物','パン','お菓子','飲み物','ジュース','弁当'];
+  const entertainHints=['本','漫画','マンガ','CD','DVD','ゲームソフト'];
+  if(oshiHints.some(k=>sentence.includes(k)))return{cat:'推し活',desc:'推し活グッズ'};
+  if(foodHints.some(k=>sentence.includes(k)))return{cat:'食費',desc:'食材・食品'};
+  if(entertainHints.some(k=>sentence.includes(k)))return{cat:'娯楽費',desc:'娯楽購入'};
+  return{cat:'その他',desc:'お買い物'};
+}
+function mockAnalyze(text){
+  const sentences=splitSentences(text);
+  const found=[];
+  const detectedSentences=new Set();
+  for(const sentence of sentences){
+    let matched=false;
+    for(const p of PATTERNS){
+      if(p.keys.some(k=>sentence.includes(k))){
+        found.push({type:p.type||'expense',description:p.desc,sourceText:sentence,category:p.cat||'その他',incomeType:p.itype||null,amount:null,method:null,mockAmt:p.lo+Math.floor(Math.random()*(p.hi-p.lo)),excluded:false});
+        matched=true;detectedSentences.add(sentence);break;
+      }
+    }
+    if(!matched&&/買った|購入した|払った/.test(sentence)){
+      const guess=guessCategoryFromBuy(sentence);
+      found.push({type:'expense',description:guess.desc,sourceText:sentence,category:guess.cat,amount:null,method:null,mockAmt:500,excluded:false});
+      matched=true;detectedSentences.add(sentence);
+    }
+  }
+  // 未検出の文を別途保存
+  S._allSentences=sentences;
+  S._undetectedSentences=sentences.filter(s=>!detectedSentences.has(s));
+  return found;
+}
+
+function analyzeDiary(){
+  const text=document.getElementById('diary-text').value.trim();
+  if(!text){alert('日記を書いてください');return;}
+  const btn=document.getElementById('analyze-btn');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>分析中...';
+  setTimeout(()=>{
+    const items=mockAnalyze(text);
+    S._detectedItems=items;
+    S._currentDiaryText=text;
+    btn.disabled=false;btn.textContent='AIに分析してもらう ✨';
+    showReviewPanel(items);
+  },1200);
+}
+
+function showReviewPanel(items){
+  document.getElementById('review-panel').style.display='block';
+  document.getElementById('chat-section').style.display='none';
+
+  // 検出されたもの
+  const detEl=document.getElementById('review-detected');
+  if(!items.length){
+    detEl.innerHTML='<div style="font-size:13px;color:var(--muted);padding:8px 0">何も検出されませんでした</div>';
+  } else {
+    detEl.innerHTML=items.map((item,i)=>`
+      <div class="review-item" id="review-item-${i}">
+        <span class="review-cat">${CATS[item.category]||'📦'} ${item.category}</span>
+        <span class="review-text">${item.sourceText}</span>
+        <button class="review-exclude-btn" onclick="toggleExclude(${i})">除外する</button>
+      </div>`).join('');
+  }
+
+  // 未検出の文
+  const unEl=document.getElementById('review-undetected');
+  const undetected=S._undetectedSentences||[];
+  if(!undetected.length){
+    unEl.innerHTML='<div style="font-size:13px;color:var(--muted);padding:8px 0">すべての文が検出されました</div>';
+  } else {
+    unEl.innerHTML=undetected.map((s,i)=>`
+      <div class="sentence-item" id="undet-${i}" onclick="toggleAddSentence(${i},'${s.replace(/'/g,"\\'")}')">
+        <div class="sentence-check" id="undet-check-${i}"></div>
+        <span>${s}</span>
+      </div>`).join('');
+  }
+}
+
+function toggleExclude(i){
+  const item=S._detectedItems[i];
+  item.excluded=!item.excluded;
+  const el=document.getElementById('review-item-'+i);
+  const btn=el.querySelector('.review-exclude-btn');
+  if(item.excluded){el.classList.add('excluded');btn.textContent='元に戻す';btn.classList.add('undo');}
+  else{el.classList.remove('excluded');btn.textContent='除外する';btn.classList.remove('undo');}
+}
+
+function toggleAddSentence(i, sentence){
+  const el=document.getElementById('undet-'+i);
+  const check=document.getElementById('undet-check-'+i);
+  const already=S._detectedItems.findIndex(d=>d.sourceText===sentence&&d._added);
+  if(already>=0){
+    // 追加済みなら取り消し
+    S._detectedItems.splice(already,1);
+    el.classList.remove('selected');check.classList.remove('checked');check.textContent='';
+  } else {
+    // 追加
+    const guess=guessCategoryFromBuy(sentence);
+    S._detectedItems.push({type:'expense',description:guess.desc,sourceText:sentence,category:guess.cat,amount:null,method:null,mockAmt:500,excluded:false,_added:true});
+    el.classList.add('selected');check.classList.add('checked');check.textContent='✓';
+    // 検出リストに追加表示
+    const detEl=document.getElementById('review-detected');
+    const newIdx=S._detectedItems.length-1;
+    const div=document.createElement('div');
+    div.className='review-item';div.id='review-item-'+newIdx;
+    div.innerHTML=`<span class="review-cat">${CATS[guess.cat]||'📦'} ${guess.cat}</span><span class="review-text">${sentence}</span><button class="review-exclude-btn" onclick="toggleExclude(${newIdx})">除外する</button>`;
+    detEl.appendChild(div);
+  }
+}
+
+function startConfirmFlow(){
+  const active=S._detectedItems.filter(d=>!d.excluded);
+  if(!active.length){alert('記録するものがありません');return;}
+  document.getElementById('review-panel').style.display='none';
+  document.getElementById('chat-section').style.display='block';
+  document.getElementById('chat-area').innerHTML='';
+  S.pending=active;S.idx=0;
+  addChat(active.length+'件を記録します！一つずつ確認しますね。','ai');
+  setTimeout(askNext,400);
+}
+
+function addChat(text,role){
+  const area=document.getElementById('chat-area');
+  const d=document.createElement('div');d.className='msg '+role;d.textContent=text;
+  area.appendChild(d);area.scrollTop=area.scrollHeight;return d;
+}
+function addQuote(text){
+  const area=document.getElementById('chat-area');
+  const d=document.createElement('div');d.className='quote';d.textContent='「'+text+'」';
+  area.appendChild(d);area.scrollTop=area.scrollHeight;
+}
+function clearI(){document.getElementById('interact-area').innerHTML='';}
+
+function askNext(){
+  if(S.idx>=S.pending.length){saveAll();return;}
+  const item=S.pending[S.idx];clearI();
+  addQuote(item.sourceText);
+  if(item.type==='expense'){
+    addChat(item.description+'ですね。いくらでしたか？カテゴリも選んでください。','ai');
+    showAmtInput(item.mockAmt,amt=>{item.amount=amt;askPay(item);});
+  } else {
+    addChat(item.description+'ですね！何の収入ですか？','ai');
+    showChoices(INCOMES,c=>{item.incomeType=c;addChat(c,'user');askIncomeAmt(item);});
+  }
+}
+function askCategory(item){
+  // 金額入力と同時にカテゴリ選択するようになったため未使用
+}
+function askIncomeAmt(item){
+  clearI();addChat('いくらもらいましたか？','ai');
+  showAmtInput(item.mockAmt,amt=>{item.amount=amt;addChat(fmt(amt),'user');askPay(item);});
+}
+function askPay(item){
+  clearI();
+  addChat(item.type==='expense'?'何で払いましたか？':'どこに入りましたか？','ai');
+  showChoices(PAYS,c=>{item.method=c;addChat(c,'user');S.idx++;setTimeout(askNext,300);});
+}
+function showAmtInput(def,cb){
+  document.getElementById('interact-area').innerHTML='<div class="amt-row"><input class="amt-in" type="number" id="amt-in" placeholder="金額..." value="'+def+'" oninput="onAmtChange()"></div><div id="amt-cat-hint" style="font-size:11px;color:var(--muted);margin:4px 0 4px">金額を入力したらカテゴリを選んでください</div><div id="amt-cat-row" class="choice-row" style="margin-top:2px"></div>';
+  window._amtCb=cb;
+  renderAmtCatChoices();
+}
+function renderAmtCatChoices(){
+  const suggested=S.pending[S.idx]?S.pending[S.idx].category:'その他';
+  document.getElementById('amt-cat-row').innerHTML=CAT_KEYS.map(o=>`<button class="choice-btn${o===suggested?' selected':''}" onclick="submitAmtWithCat('${o}')">${CATS[o]||''}${o}</button>`).join('');
+}
+function onAmtChange(){
+  // 金額変わっても選択肢はそのまま（何もしない）
+}
+function submitAmtWithCat(cat){
+  const v=parseInt(document.getElementById('amt-in').value)||0;
+  if(v<=0){alert('金額を入力してください');return;}
+  // カテゴリを確定してチャットに表示
+  const item=S.pending[S.idx];
+  item.category=cat;
+  addChat(fmt(v)+'・'+cat,'user');
+  clearI();
+  window._amtCb(v);
+}
+function showChoices(opts,cb,suggested){
+  document.getElementById('interact-area').innerHTML='<div class="choice-row">'+opts.map(o=>`<button class="choice-btn${o===suggested?' selected':''}" onclick="pickChoice('${o}')">${CATS[o]||''}${o}</button>`).join('')+'</div>';
+  window._choiceCb=cb;
+}
+function pickChoice(v){clearI();window._choiceCb(v);}
+
+function saveAll(){
+  const today=new Date().toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
+  const mp={現金:'cash',PayPay:'paypay',銀行:'bank'};
+  const diaryTxs=[];
+  S.pending.forEach(item=>{
+    const tx={type:item.type,desc:item.description,category:item.type==='income'?(item.incomeType||'収入'):item.category,method:item.method,amount:item.amount,date:today};
+    S.transactions.push(tx);diaryTxs.push(tx);
+    const key=mp[item.method];
+    if(key)S.balances[key]+=item.type==='expense'?-item.amount:item.amount;
+  });
+  S.diaries.push({date:today,text:S._currentDiaryText,transactions:diaryTxs,img:S._imgBase64||null});
+  saveToLS();
+  addChat('✅ '+S.pending.length+'件を記録して日記を保存しました！','ai');
+  clearI();
+  document.getElementById('diary-text').value='';
+  document.getElementById('img-preview').style.display='none';
+  document.getElementById('img-name').textContent='';
+  document.getElementById('review-panel').style.display='none';
+  S._imgBase64=null;
+  renderDashboard();
+}
+
+loadFromLS();
+renderDashboard();
+</script>
+</body>
+</html>

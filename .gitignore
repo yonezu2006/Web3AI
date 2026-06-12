@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+
+# Dependencies
+node_modules/
+.npm-cache/
+.venv/
+__pycache__/
+*.pyc
+
+# Secrets / environment
+.env
+.env.local
+
+# Logs
+*.log
+
+# Large lecture materials (kept on disk, not in repo)
+*.pdf

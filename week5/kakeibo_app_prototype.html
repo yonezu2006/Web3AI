@@ -1,0 +1,461 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --sky: #e0f4fb;
+    --sky-mid: #7ecfe8;
+    --sky-deep: #2496c8;
+    --sky-dark: #155e8a;
+    --white: #fff;
+    --surface: #f4fafd;
+    --border: rgba(36,150,200,0.15);
+    --text: #1a3a4a;
+    --muted: #5a8a9f;
+    --green: #2eab7a;
+    --red: #e05a5a;
+    --font: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  }
+  body { font-family: var(--font); background: var(--surface); color: var(--text); min-height: 100vh; }
+
+  /* ---- NAV ---- */
+  .nav { background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; height: 52px; gap: 8px; }
+  .nav-logo { font-size: 18px; font-weight: 700; color: var(--sky-deep); letter-spacing: -0.5px; flex: 1; }
+  .nav-tab { padding: 6px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; border: none; background: none; color: var(--muted); font-family: var(--font); transition: all 0.15s; }
+  .nav-tab.active { background: var(--sky); color: var(--sky-dark); font-weight: 600; }
+  .nav-tab:hover:not(.active) { background: var(--surface); }
+
+  /* ---- SCREENS ---- */
+  .screen { display: none; padding: 16px 20px 40px; }
+  .screen.active { display: block; }
+
+  /* ---- DASHBOARD ---- */
+  .balance-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+  .balance-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+  .balance-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+  .balance-amount { font-size: 20px; font-weight: 700; color: var(--sky-dark); }
+  .balance-total { background: linear-gradient(135deg, var(--sky-deep), var(--sky-dark)); color: white; border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+  .balance-total .label { font-size: 12px; opacity: 0.85; }
+  .balance-total .amount { font-size: 28px; font-weight: 700; }
+
+  .section-title { font-size: 13px; font-weight: 600; color: var(--muted); margin: 16px 0 8px; letter-spacing: 0.5px; }
+  .chart-wrap { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+  .chart-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; }
+  .chart-bar-label { width: 54px; color: var(--muted); text-align: right; flex-shrink: 0; }
+  .chart-bar-bg { flex: 1; background: var(--sky); border-radius: 4px; height: 14px; overflow: hidden; }
+  .chart-bar-fill { height: 100%; background: var(--sky-deep); border-radius: 4px; transition: width 0.4s; }
+  .chart-bar-val { width: 50px; text-align: right; font-weight: 600; color: var(--text); }
+  .chart-bar-fill.green { background: var(--green); }
+  .chart-bar-fill.red { background: var(--red); }
+
+  .recent-list { background: var(--white); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .recent-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  .recent-item:last-child { border-bottom: none; }
+  .recent-icon { width: 32px; height: 32px; border-radius: 50%; background: var(--sky); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .recent-desc { flex: 1; font-size: 13px; }
+  .recent-sub { font-size: 11px; color: var(--muted); }
+  .recent-amount { font-size: 13px; font-weight: 700; }
+  .recent-amount.minus { color: var(--red); }
+  .recent-amount.plus { color: var(--green); }
+
+  /* ---- DIARY ---- */
+  .diary-header { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .diary-sub { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+  .diary-textarea { width: 100%; border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-size: 14px; font-family: var(--font); color: var(--text); background: var(--white); resize: none; outline: none; transition: border 0.15s; }
+  .diary-textarea:focus { border-color: var(--sky-mid); }
+  .diary-img-row { display: flex; gap: 8px; margin: 10px 0; align-items: center; }
+  .img-btn { padding: 7px 14px; border: 1px dashed var(--sky-mid); border-radius: 8px; background: none; font-size: 12px; color: var(--sky-dark); cursor: pointer; font-family: var(--font); }
+  .img-preview { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border); display: none; }
+  .submit-btn { width: 100%; padding: 12px; background: var(--sky-deep); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; font-family: var(--font); cursor: pointer; margin-top: 8px; transition: opacity 0.15s; }
+  .submit-btn:hover { opacity: 0.88; }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ---- AI CHAT ---- */
+  .chat-area { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 12px; min-height: 220px; max-height: 320px; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .chat-msg { max-width: 88%; padding: 8px 12px; border-radius: 10px; font-size: 13px; line-height: 1.5; }
+  .chat-msg.ai { background: var(--sky); color: var(--sky-dark); align-self: flex-start; border-bottom-left-radius: 2px; }
+  .chat-msg.user { background: var(--sky-deep); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+  .chat-msg.thinking { background: var(--sky); color: var(--muted); font-style: italic; font-size: 12px; }
+
+  .choice-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+  .choice-btn { padding: 5px 12px; border: 1px solid var(--sky-mid); border-radius: 16px; background: var(--white); font-size: 12px; color: var(--sky-dark); cursor: pointer; font-family: var(--font); transition: all 0.12s; }
+  .choice-btn:hover { background: var(--sky); }
+
+  .amount-row { display: flex; gap: 6px; margin-top: 6px; }
+  .amount-input { flex: 1; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-family: var(--font); outline: none; }
+  .amount-input:focus { border-color: var(--sky-mid); }
+  .amount-send { padding: 7px 14px; background: var(--sky-deep); color: white; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: var(--font); }
+
+  /* ---- SETTINGS ---- */
+  .settings-section { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+  .settings-label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .settings-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .settings-input { flex: 1; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: var(--font); outline: none; }
+  .settings-input:focus { border-color: var(--sky-mid); }
+  .settings-save { padding: 7px 16px; background: var(--sky-deep); color: white; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: var(--font); }
+  .badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; background: var(--sky); color: var(--sky-dark); margin-left: 4px; }
+
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 4px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .empty { text-align: center; color: var(--muted); font-size: 13px; padding: 24px 0; }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="nav-logo">💧 おこづかい帳</div>
+  <button class="nav-tab active" onclick="showScreen('dashboard')">残高</button>
+  <button class="nav-tab" onclick="showScreen('diary')">日記</button>
+  <button class="nav-tab" onclick="showScreen('settings')">設定</button>
+</div>
+
+<!-- DASHBOARD -->
+<div class="screen active" id="screen-dashboard">
+  <div class="balance-total">
+    <div><div class="label">合計残高</div><div class="amount" id="total-balance">¥0</div></div>
+    <div style="font-size:28px;opacity:0.5">💰</div>
+  </div>
+  <div class="balance-grid">
+    <div class="balance-card">
+      <div class="balance-label">💴 現金</div>
+      <div class="balance-amount" id="bal-cash">¥0</div>
+    </div>
+    <div class="balance-card">
+      <div class="balance-label">📱 PayPay</div>
+      <div class="balance-amount" id="bal-paypay">¥0</div>
+    </div>
+    <div class="balance-card">
+      <div class="balance-label">🏦 銀行</div>
+      <div class="balance-amount" id="bal-bank">¥0</div>
+    </div>
+  </div>
+
+  <div class="section-title">今月の支出（カテゴリ別）</div>
+  <div class="chart-wrap" id="chart-area">
+    <div class="empty">まだ記録がありません</div>
+  </div>
+
+  <div class="section-title">最近の記録</div>
+  <div class="recent-list" id="recent-list">
+    <div class="recent-item"><div class="empty" style="width:100%">まだ記録がありません</div></div>
+  </div>
+</div>
+
+<!-- DIARY -->
+<div class="screen" id="screen-diary">
+  <div class="diary-header">今日の日記を書く</div>
+  <div class="diary-sub">書いた内容からAIが支出・収入を自動で検出します</div>
+
+  <textarea class="diary-textarea" id="diary-text" rows="5" placeholder="例）友達とカフェに行って、ケーキセット食べました。夜はコンビニでご飯買った。"></textarea>
+
+  <div class="diary-img-row">
+    <button class="img-btn" onclick="document.getElementById('img-input').click()">📷 画像を追加</button>
+    <input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImg(event)">
+    <img class="img-preview" id="img-preview">
+    <span id="img-name" style="font-size:11px;color:var(--muted)"></span>
+  </div>
+
+  <button class="submit-btn" id="analyze-btn" onclick="analyzeDiary()">AIに分析してもらう ✨</button>
+
+  <div id="chat-section" style="margin-top:16px; display:none">
+    <div class="section-title">AI との確認</div>
+    <div class="chat-area" id="chat-area"></div>
+    <div id="interaction-area"></div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="screen" id="screen-settings">
+  <div class="section-title">APIキー設定</div>
+  <div class="settings-section">
+    <div class="settings-label">Anthropic API Key <span class="badge">必須</span></div>
+    <div class="settings-row">
+      <input class="settings-input" type="password" id="api-key-input" placeholder="sk-ant-..." value="">
+      <button class="settings-save" onclick="saveApiKey()">保存</button>
+    </div>
+    <div style="font-size:11px;color:var(--muted)">キーはこのブラウザにのみ保存されます</div>
+  </div>
+
+  <div class="section-title">初期残高設定</div>
+  <div class="settings-section">
+    <div class="settings-label">💴 現金</div>
+    <div class="settings-row">
+      <input class="settings-input" type="number" id="init-cash" placeholder="例）5000">
+      <button class="settings-save" onclick="saveBalance('cash')">保存</button>
+    </div>
+    <div class="settings-label">📱 PayPay</div>
+    <div class="settings-row">
+      <input class="settings-input" type="number" id="init-paypay" placeholder="例）3000">
+      <button class="settings-save" onclick="saveBalance('paypay')">保存</button>
+    </div>
+    <div class="settings-label">🏦 銀行</div>
+    <div class="settings-row">
+      <input class="settings-input" type="number" id="init-bank" placeholder="例）50000">
+      <button class="settings-save" onclick="saveBalance('bank')">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const state = {
+  apiKey: '',
+  balances: { cash: 0, paypay: 0, bank: 0 },
+  transactions: [],
+  chatHistory: [],
+  pendingItems: [],
+  currentItemIndex: 0,
+  diaryText: '',
+  imgBase64: null,
+};
+
+const CATS = { 食費:'🍜', 交際費:'👥', 推し活:'⭐', コンビニ:'🏪', カフェ:'☕', 交通費:'🚃', その他:'📦' };
+const PAY_METHODS = ['現金', 'PayPay', '銀行', 'その他'];
+const INCOME_TYPES = ['お小遣い', 'バイト代', 'その他'];
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'dashboard') renderDashboard();
+}
+
+function fmt(n) { return '¥' + Math.round(n).toLocaleString('ja-JP'); }
+
+function renderDashboard() {
+  const b = state.balances;
+  document.getElementById('bal-cash').textContent = fmt(b.cash);
+  document.getElementById('bal-paypay').textContent = fmt(b.paypay);
+  document.getElementById('bal-bank').textContent = fmt(b.bank);
+  document.getElementById('total-balance').textContent = fmt(b.cash + b.paypay + b.bank);
+
+  const txs = state.transactions;
+  const ca = document.getElementById('chart-area');
+  if (txs.length === 0) { ca.innerHTML = '<div class="empty">まだ記録がありません</div>'; }
+  else {
+    const catTotals = {};
+    txs.filter(t => t.type === 'expense').forEach(t => {
+      catTotals[t.category] = (catTotals[t.category] || 0) + t.amount;
+    });
+    const max = Math.max(...Object.values(catTotals), 1);
+    ca.innerHTML = Object.entries(catTotals).map(([cat, amt]) => `
+      <div class="chart-bar-row">
+        <div class="chart-bar-label">${CATS[cat]||'📦'} ${cat}</div>
+        <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${Math.round(amt/max*100)}%"></div></div>
+        <div class="chart-bar-val">${fmt(amt)}</div>
+      </div>`).join('');
+  }
+
+  const rl = document.getElementById('recent-list');
+  if (txs.length === 0) { rl.innerHTML = '<div class="recent-item"><div class="empty" style="width:100%">まだ記録がありません</div></div>'; }
+  else {
+    rl.innerHTML = [...txs].reverse().slice(0, 6).map(t => `
+      <div class="recent-item">
+        <div class="recent-icon">${CATS[t.category]||'📦'}</div>
+        <div class="recent-desc">${t.desc}<div class="recent-sub">${t.method} · ${t.date}</div></div>
+        <div class="recent-amount ${t.type==='expense'?'minus':'plus'}">${t.type==='expense'?'-':'+'} ${fmt(t.amount)}</div>
+      </div>`).join('');
+  }
+}
+
+function handleImg(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  document.getElementById('img-name').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = r => {
+    const preview = document.getElementById('img-preview');
+    preview.src = r.target.result;
+    preview.style.display = 'block';
+    state.imgBase64 = r.target.result.split(',')[1];
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveApiKey() {
+  state.apiKey = document.getElementById('api-key-input').value.trim();
+  alert(state.apiKey ? 'APIキーを保存しました ✓' : 'キーが空です');
+}
+
+function saveBalance(type) {
+  const val = parseInt(document.getElementById('init-'+type).value) || 0;
+  state.balances[type] = val;
+  renderDashboard();
+  alert(['cash'=>'現金','paypay'=>'PayPay','bank'=>'銀行'][type]||type + 'の残高を設定しました ✓');
+}
+
+function addChat(text, role) {
+  const area = document.getElementById('chat-area');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + role;
+  div.textContent = text;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+  return div;
+}
+
+function clearInteraction() {
+  document.getElementById('interaction-area').innerHTML = '';
+}
+
+async function callClaude(messages, system) {
+  const key = state.apiKey;
+  if (!key) { alert('設定画面でAPIキーを入力してください'); throw new Error('No API key'); }
+  const body = { model: 'claude-sonnet-4-20250514', max_tokens: 1000, system, messages };
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'API Error'); }
+  const data = await res.json();
+  return data.content.map(c => c.text || '').join('');
+}
+
+async function analyzeDiary() {
+  const text = document.getElementById('diary-text').value.trim();
+  if (!text) { alert('日記を書いてください'); return; }
+  state.diaryText = text;
+
+  const btn = document.getElementById('analyze-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>分析中...';
+
+  document.getElementById('chat-section').style.display = 'block';
+  document.getElementById('chat-area').innerHTML = '';
+  const thinking = addChat('日記を読んでいます…', 'thinking');
+
+  const system = `あなたは家計簿アシスタントです。ユーザーの日記から支出と収入のイベントを検出してください。
+必ずJSON配列のみを返してください。各要素: {"type":"expense"|"income","description":"簡潔な説明","category":"食費"|"交際費"|"推し活"|"コンビニ"|"カフェ"|"交通費"|"その他","estimate":null}
+収入の場合は category を "収入" にしてください。
+何も検出されなければ空配列 [] を返してください。`;
+
+  try {
+    const msgs = [{ role: 'user', content: text }];
+    const raw = await callClaude(msgs, system);
+    const json = raw.replace(/```json|```/g, '').trim();
+    const items = JSON.parse(json);
+    thinking.remove();
+
+    if (items.length === 0) {
+      addChat('日記から支出や収入は見つかりませんでした。もう少し詳しく書いてみてください！', 'ai');
+      btn.disabled = false; btn.textContent = 'AIに分析してもらう ✨';
+      return;
+    }
+
+    addChat(`${items.length}件の記録を見つけました！一つずつ確認しますね。`, 'ai');
+    state.pendingItems = items.map(i => ({ ...i, amount: null, method: null, incomeType: null }));
+    state.currentItemIndex = 0;
+    btn.disabled = false; btn.textContent = 'AIに分析してもらう ✨';
+    askNextItem();
+  } catch(e) {
+    thinking.remove();
+    addChat('エラーが発生しました: ' + e.message, 'ai');
+    btn.disabled = false; btn.textContent = 'AIに分析してもらう ✨';
+  }
+}
+
+function askNextItem() {
+  if (state.currentItemIndex >= state.pendingItems.length) {
+    saveAllItems();
+    return;
+  }
+  const item = state.pendingItems[state.currentItemIndex];
+  clearInteraction();
+
+  if (item.type === 'expense') {
+    addChat(`「${item.description}」、いくらでしたか？`, 'ai');
+    showAmountInput(amt => {
+      item.amount = amt;
+      addChat(fmt(amt), 'user');
+      askPaymentMethod(item);
+    });
+  } else {
+    addChat(`「${item.description}」ですね！何の収入ですか？`, 'ai');
+    showChoices(INCOME_TYPES, choice => {
+      item.incomeType = choice;
+      addChat(choice, 'user');
+      askPaymentMethod(item);
+    });
+  }
+}
+
+function askPaymentMethod(item) {
+  clearInteraction();
+  const q = item.type === 'expense' ? '何で払いましたか？' : 'どこに入りましたか？（財布・口座）';
+  addChat(q, 'ai');
+  showChoices(PAY_METHODS, choice => {
+    item.method = choice;
+    addChat(choice, 'user');
+    state.currentItemIndex++;
+    setTimeout(askNextItem, 300);
+  });
+}
+
+function showAmountInput(cb) {
+  const area = document.getElementById('interaction-area');
+  area.innerHTML = `<div class="amount-row">
+    <input class="amount-input" type="number" id="amt-in" placeholder="金額を入力...">
+    <button class="amount-send" onclick="submitAmount()">決定</button>
+  </div>`;
+  window._amtCb = cb;
+}
+
+function submitAmount() {
+  const v = parseInt(document.getElementById('amt-in').value) || 0;
+  if (v <= 0) { alert('金額を入力してください'); return; }
+  clearInteraction();
+  window._amtCb(v);
+}
+
+function showChoices(options, cb) {
+  const area = document.getElementById('interaction-area');
+  area.innerHTML = `<div class="choice-row">${options.map(o =>
+    `<button class="choice-btn" onclick="pickChoice('${o}')">${o}</button>`
+  ).join('')}</div>`;
+  window._choiceCb = cb;
+}
+
+function pickChoice(val) {
+  clearInteraction();
+  window._choiceCb(val);
+}
+
+function saveAllItems() {
+  const today = new Date().toLocaleDateString('ja-JP', { month:'numeric', day:'numeric' });
+  const methodMap = { '現金':'cash', 'PayPay':'paypay', '銀行':'bank' };
+
+  state.pendingItems.forEach(item => {
+    const tx = {
+      type: item.type,
+      desc: item.description,
+      category: item.type === 'income' ? (item.incomeType || '収入') : item.category,
+      method: item.method,
+      amount: item.amount || 0,
+      date: today
+    };
+    state.transactions.push(tx);
+
+    const key = methodMap[item.method];
+    if (key) {
+      if (item.type === 'expense') state.balances[key] -= tx.amount;
+      else state.balances[key] += tx.amount;
+    }
+  });
+
+  addChat(`✅ ${state.pendingItems.length}件を記録しました！残高も更新されました。`, 'ai');
+  clearInteraction();
+  document.getElementById('diary-text').value = '';
+  document.getElementById('img-preview').style.display = 'none';
+  document.getElementById('img-name').textContent = '';
+  state.imgBase64 = null;
+  renderDashboard();
+}
+
+renderDashboard();
+</script>
+</body>
+</html>

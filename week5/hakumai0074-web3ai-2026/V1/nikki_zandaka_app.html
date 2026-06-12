@@ -1,0 +1,334 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sky:#e0f4fb;--sky-mid:#7ecfe8;--sky-deep:#2496c8;--sky-dark:#155e8a;
+  --white:#fff;--surface:#f4fafd;--border:rgba(36,150,200,0.18);
+  --text:#1a3a4a;--muted:#5a8a9f;--green:#2eab7a;--red:#e05a5a;
+}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--surface);color:var(--text);min-height:100vh}
+.nav{background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;height:52px;gap:4px}
+.nav-logo{font-size:17px;font-weight:700;color:var(--sky-deep);flex:1}
+.nav-tab{padding:6px 13px;border-radius:20px;font-size:13px;cursor:pointer;border:none;background:none;color:var(--muted);font-family:inherit;transition:all .15s}
+.nav-tab.active{background:var(--sky);color:var(--sky-dark);font-weight:600}
+.nav-tab:hover:not(.active){background:var(--surface)}
+.screen{display:none;padding:14px 16px 40px}
+.screen.active{display:block}
+
+.balance-total{background:var(--sky-deep);color:white;border-radius:14px;padding:16px 20px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.balance-total .lbl{font-size:12px;opacity:.8;margin-bottom:2px}
+.balance-total .amt{font-size:26px;font-weight:700}
+.balance-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.bal-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px}
+.bal-lbl{font-size:11px;color:var(--muted);margin-bottom:3px}
+.bal-amt{font-size:18px;font-weight:700;color:var(--sky-dark)}
+.sec{font-size:12px;font-weight:600;color:var(--muted);margin:14px 0 7px;letter-spacing:.4px}
+.chart-wrap{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px}
+.bar-lbl{width:60px;color:var(--muted);text-align:right;flex-shrink:0}
+.bar-bg{flex:1;background:var(--sky);border-radius:4px;height:13px;overflow:hidden}
+.bar-fill{height:100%;background:var(--sky-deep);border-radius:4px;transition:width .4s}
+.bar-val{width:52px;text-align:right;font-weight:600}
+.recent-list{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.rec-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border)}
+.rec-item:last-child{border-bottom:none}
+.rec-icon{width:30px;height:30px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.rec-desc{flex:1;font-size:13px}
+.rec-sub{font-size:11px;color:var(--muted)}
+.rec-amt{font-size:13px;font-weight:700}
+.minus{color:var(--red)}.plus{color:var(--green)}
+.empty{text-align:center;color:var(--muted);font-size:13px;padding:20px 0}
+
+.diary-sub{font-size:12px;color:var(--muted);margin-bottom:12px}
+textarea{width:100%;border:1px solid var(--border);border-radius:10px;padding:11px;font-size:14px;font-family:inherit;color:var(--text);background:var(--white);resize:none;outline:none;transition:border .15s}
+textarea:focus{border-color:var(--sky-mid)}
+.img-row{display:flex;gap:8px;margin:9px 0;align-items:center}
+.img-btn{padding:6px 12px;border:1px dashed var(--sky-mid);border-radius:8px;background:none;font-size:12px;color:var(--sky-dark);cursor:pointer;font-family:inherit}
+.img-preview{width:52px;height:52px;border-radius:8px;object-fit:cover;border:1px solid var(--border);display:none}
+.main-btn{width:100%;padding:12px;background:var(--sky-deep);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:8px;transition:opacity .15s}
+.main-btn:hover{opacity:.88}
+.main-btn:disabled{opacity:.45;cursor:not-allowed}
+.chat-area{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:12px;min-height:180px;max-height:300px;overflow-y:auto;margin-bottom:10px;display:flex;flex-direction:column;gap:8px}
+.msg{max-width:88%;padding:8px 12px;border-radius:10px;font-size:13px;line-height:1.5}
+.msg.ai{background:var(--sky);color:var(--sky-dark);align-self:flex-start;border-bottom-left-radius:2px}
+.msg.user{background:var(--sky-deep);color:white;align-self:flex-end;border-bottom-right-radius:2px}
+.msg.thinking{background:var(--sky);color:var(--muted);font-style:italic;font-size:12px}
+.choice-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.choice-btn{padding:5px 12px;border:1px solid var(--sky-mid);border-radius:16px;background:var(--white);font-size:12px;color:var(--sky-dark);cursor:pointer;font-family:inherit;transition:all .12s}
+.choice-btn:hover{background:var(--sky)}
+.amt-row{display:flex;gap:6px;margin-top:6px}
+.amt-in{flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none}
+.amt-in:focus{border-color:var(--sky-mid)}
+.amt-send{padding:7px 14px;background:var(--sky-deep);color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit}
+.set-section{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+.set-lbl{font-size:12px;color:var(--muted);margin-bottom:4px}
+.set-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.set-row:last-child{margin-bottom:0}
+.set-in{flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none}
+.set-in:focus{border-color:var(--sky-mid)}
+.set-save{padding:7px 14px;background:var(--sky-deep);color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit}
+.spinner{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:4px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.mock-badge{display:inline-block;background:#fff3cd;color:#856404;font-size:11px;padding:2px 8px;border-radius:8px;margin-left:6px;border:1px solid #ffc107}
+</style>
+
+<div class="nav">
+  <div class="nav-logo">💧 おこづかい帳</div>
+  <button class="nav-tab active" id="tab-dashboard" onclick="showScreen('dashboard',this)">残高</button>
+  <button class="nav-tab" id="tab-diary" onclick="showScreen('diary',this)">日記</button>
+  <button class="nav-tab" id="tab-settings" onclick="showScreen('settings',this)">設定</button>
+</div>
+
+<div class="screen active" id="screen-dashboard">
+  <div class="balance-total">
+    <div><div class="lbl">合計残高</div><div class="amt" id="total-bal">¥0</div></div>
+    <div style="font-size:26px;opacity:.45">💰</div>
+  </div>
+  <div class="balance-grid">
+    <div class="bal-card"><div class="bal-lbl">💴 現金</div><div class="bal-amt" id="bal-cash">¥0</div></div>
+    <div class="bal-card"><div class="bal-lbl">📱 PayPay</div><div class="bal-amt" id="bal-paypay">¥0</div></div>
+    <div class="bal-card"><div class="bal-lbl">🏦 銀行</div><div class="bal-amt" id="bal-bank">¥0</div></div>
+  </div>
+  <div class="sec">今月の支出（カテゴリ別）</div>
+  <div class="chart-wrap" id="chart-area"><div class="empty">まだ記録がありません</div></div>
+  <div class="sec">最近の記録</div>
+  <div class="recent-list" id="recent-list"><div class="rec-item"><div class="empty" style="width:100%">まだ記録がありません</div></div></div>
+</div>
+
+<div class="screen" id="screen-diary">
+  <div style="font-size:15px;font-weight:700;margin-bottom:3px">今日の日記を書く <span class="mock-badge">デモ版</span></div>
+  <div class="diary-sub">書いた内容からAIが支出・収入を自動で検出します（デモ版はサンプル動作）</div>
+  <textarea id="diary-text" rows="5" placeholder="例）友達とカフェでケーキセット食べました。夜はコンビニでご飯買った。"></textarea>
+  <div class="img-row">
+    <button class="img-btn" onclick="document.getElementById('img-input').click()">📷 画像を追加</button>
+    <input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImg(event)">
+    <img class="img-preview" id="img-preview">
+    <span id="img-name" style="font-size:11px;color:var(--muted)"></span>
+  </div>
+  <button class="main-btn" id="analyze-btn" onclick="analyzeDiary()">AIに分析してもらう ✨</button>
+  <div id="chat-section" style="margin-top:14px;display:none">
+    <div class="sec">AIとの確認</div>
+    <div class="chat-area" id="chat-area"></div>
+    <div id="interact-area"></div>
+  </div>
+</div>
+
+<div class="screen" id="screen-settings">
+  <div class="sec">初期残高の設定</div>
+  <div class="set-section">
+    <div class="set-lbl">💴 現金</div>
+    <div class="set-row">
+      <input class="set-in" type="number" id="init-cash" placeholder="例）5000">
+      <button class="set-save" onclick="saveBalance('cash','init-cash','bal-cash')">保存</button>
+    </div>
+    <div class="set-lbl">📱 PayPay</div>
+    <div class="set-row">
+      <input class="set-in" type="number" id="init-paypay" placeholder="例）3000">
+      <button class="set-save" onclick="saveBalance('paypay','init-paypay','bal-paypay')">保存</button>
+    </div>
+    <div class="set-lbl">🏦 銀行</div>
+    <div class="set-row">
+      <input class="set-in" type="number" id="init-bank" placeholder="例）50000">
+      <button class="set-save" onclick="saveBalance('bank','init-bank','bal-bank')">保存</button>
+    </div>
+  </div>
+  <div class="sec">デモについて</div>
+  <div class="set-section">
+    <div style="font-size:13px;color:var(--muted);line-height:1.7">
+      現在はデモ版です。AIの分析はサンプルデータで動きます。<br>
+      課金なしで動作確認ができます。<br><br>
+      将来的にAPIキーを設定すると、本物のAIで日記を分析できます。
+    </div>
+  </div>
+</div>
+
+<script>
+const S = {
+  balances:{cash:0,paypay:0,bank:0},
+  transactions:[],
+  pending:[],
+  idx:0,
+};
+const CATS={食費:'🍜',交際費:'👥',推し活:'⭐',コンビニ:'🏪',カフェ:'☕',交通費:'🚃',その他:'📦',収入:'💚'};
+const PAYS=['現金','PayPay','銀行','その他'];
+const INCOMES=['お小遣い','バイト代','その他'];
+
+function showScreen(name, btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='dashboard') renderDashboard();
+}
+
+function fmt(n){return '¥'+Math.round(n).toLocaleString('ja-JP')}
+
+function renderDashboard(){
+  const b=S.balances;
+  document.getElementById('bal-cash').textContent=fmt(b.cash);
+  document.getElementById('bal-paypay').textContent=fmt(b.paypay);
+  document.getElementById('bal-bank').textContent=fmt(b.bank);
+  document.getElementById('total-bal').textContent=fmt(b.cash+b.paypay+b.bank);
+  const txs=S.transactions;
+  const ca=document.getElementById('chart-area');
+  if(!txs.length){ca.innerHTML='<div class="empty">まだ記録がありません</div>';}
+  else{
+    const ct={};
+    txs.filter(t=>t.type==='expense').forEach(t=>{ct[t.category]=(ct[t.category]||0)+t.amount});
+    const max=Math.max(...Object.values(ct),1);
+    ca.innerHTML=Object.entries(ct).map(([c,a])=>`
+      <div class="bar-row">
+        <div class="bar-lbl">${CATS[c]||'📦'} ${c}</div>
+        <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(a/max*100)}%"></div></div>
+        <div class="bar-val">${fmt(a)}</div>
+      </div>`).join('');
+  }
+  const rl=document.getElementById('recent-list');
+  if(!txs.length){rl.innerHTML='<div class="rec-item"><div class="empty" style="width:100%">まだ記録がありません</div></div>';}
+  else{
+    rl.innerHTML=[...txs].reverse().slice(0,6).map(t=>`
+      <div class="rec-item">
+        <div class="rec-icon">${CATS[t.category]||'📦'}</div>
+        <div class="rec-desc">${t.desc}<div class="rec-sub">${t.method}・${t.date}</div></div>
+        <div class="rec-amt ${t.type==='expense'?'minus':'plus'}">${t.type==='expense'?'－':'＋'}${fmt(t.amount)}</div>
+      </div>`).join('');
+  }
+}
+
+function saveBalance(type,inputId,displayId){
+  const v=parseInt(document.getElementById(inputId).value)||0;
+  S.balances[type]=v;
+  document.getElementById(displayId).textContent=fmt(v);
+  document.getElementById('total-bal').textContent=fmt(S.balances.cash+S.balances.paypay+S.balances.bank);
+  const lbl={'cash':'現金','paypay':'PayPay','bank':'銀行'};
+  alert((lbl[type]||type)+'の残高を '+fmt(v)+' に設定しました ✓');
+}
+
+function handleImg(e){
+  const file=e.target.files[0];if(!file)return;
+  document.getElementById('img-name').textContent='📎 '+file.name;
+  const r=new FileReader();
+  r.onload=d=>{const p=document.getElementById('img-preview');p.src=d.target.result;p.style.display='block'};
+  r.readAsDataURL(file);
+}
+
+function mockAnalyze(text){
+  const patterns=[
+    {keys:['カフェ','コーヒー','ラテ','スタバ'],cat:'カフェ',desc:'カフェ代',lo:400,hi:800},
+    {keys:['ランチ','昼ごはん','昼飯','定食'],cat:'食費',desc:'ランチ代',lo:600,hi:1200},
+    {keys:['コンビニ','セブン','ファミマ','ローソン'],cat:'コンビニ',desc:'コンビニ',lo:300,hi:700},
+    {keys:['ご飯','夕食','夕ごはん','晩ごはん','外食','レストラン','焼肉','ラーメン','寿司'],cat:'食費',desc:'食事代',lo:800,hi:2000},
+    {keys:['友達','友人','みんな','飲み','居酒屋'],cat:'交際費',desc:'友達との食事',lo:1500,hi:4000},
+    {keys:['推し','ライブ','グッズ','アニメ','ゲーム'],cat:'推し活',desc:'推し活',lo:1000,hi:5000},
+    {keys:['電車','バス','交通'],cat:'交通費',desc:'交通費',lo:200,hi:600},
+    {keys:['お小遣い','小遣い'],type:'income',itype:'お小遣い',desc:'お小遣い',lo:1000,hi:5000},
+    {keys:['バイト','バイト代','給料'],type:'income',itype:'バイト代',desc:'バイト代',lo:5000,hi:30000},
+  ];
+  const found=[];
+  for(const p of patterns){
+    if(p.keys.some(k=>text.includes(k))){
+      found.push({
+        type:p.type||'expense',
+        description:p.desc,
+        category:p.cat||'その他',
+        incomeType:p.itype||null,
+        amount:null,method:null,
+        mockAmt:p.lo+Math.floor(Math.random()*(p.hi-p.lo))
+      });
+    }
+  }
+  if(!found.length){
+    found.push({type:'expense',description:'支出',category:'その他',amount:null,method:null,mockAmt:500});
+  }
+  return found;
+}
+
+function addChat(text,role){
+  const area=document.getElementById('chat-area');
+  const d=document.createElement('div');
+  d.className='msg '+role;d.textContent=text;
+  area.appendChild(d);area.scrollTop=area.scrollHeight;
+  return d;
+}
+function clearI(){document.getElementById('interact-area').innerHTML=''}
+
+function analyzeDiary(){
+  const text=document.getElementById('diary-text').value.trim();
+  if(!text){alert('日記を書いてください');return}
+  const btn=document.getElementById('analyze-btn');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>分析中...';
+  document.getElementById('chat-section').style.display='block';
+  document.getElementById('chat-area').innerHTML='';
+  const thinking=addChat('日記を読んでいます…','thinking');
+  setTimeout(()=>{
+    thinking.remove();
+    const items=mockAnalyze(text);
+    addChat(items.length+'件の記録を見つけました！一つずつ確認しますね。','ai');
+    S.pending=items;S.idx=0;
+    btn.disabled=false;btn.textContent='AIに分析してもらう ✨';
+    setTimeout(askNext,400);
+  },1200);
+}
+
+function askNext(){
+  if(S.idx>=S.pending.length){saveAll();return}
+  const item=S.pending[S.idx];
+  clearI();
+  if(item.type==='expense'){
+    addChat('「'+item.description+'」、いくらでしたか？（参考：'+fmt(item.mockAmt)+'くらいかも）','ai');
+    showAmtInput(item.mockAmt,amt=>{item.amount=amt;addChat(fmt(amt),'user');askPay(item)});
+  } else {
+    addChat('「'+item.description+'」ですね！何の収入ですか？','ai');
+    showChoices(INCOMES,c=>{item.incomeType=c;addChat(c,'user');askIncomeAmt(item)});
+  }
+}
+
+function askIncomeAmt(item){
+  clearI();
+  addChat('いくらもらいましたか？','ai');
+  showAmtInput(item.mockAmt,amt=>{item.amount=amt;addChat(fmt(amt),'user');askPay(item)});
+}
+
+function askPay(item){
+  clearI();
+  const q=item.type==='expense'?'何で払いましたか？':'どこに入りましたか？';
+  addChat(q,'ai');
+  showChoices(PAYS,c=>{item.method=c;addChat(c,'user');S.idx++;setTimeout(askNext,300)});
+}
+
+function showAmtInput(def,cb){
+  const a=document.getElementById('interact-area');
+  a.innerHTML=`<div class="amt-row"><input class="amt-in" type="number" id="amt-in" placeholder="金額..." value="${def}"><button class="amt-send" onclick="submitAmt()">決定</button></div>`;
+  window._amtCb=cb;
+}
+function submitAmt(){
+  const v=parseInt(document.getElementById('amt-in').value)||0;
+  if(v<=0){alert('金額を入力してください');return}
+  clearI();window._amtCb(v);
+}
+
+function showChoices(opts,cb){
+  const a=document.getElementById('interact-area');
+  a.innerHTML=`<div class="choice-row">${opts.map(o=>`<button class="choice-btn" onclick="pickChoice('${o}')">${o}</button>`).join('')}</div>`;
+  window._choiceCb=cb;
+}
+function pickChoice(v){clearI();window._choiceCb(v)}
+
+function saveAll(){
+  const today=new Date().toLocaleDateString('ja-JP',{month:'numeric',day:'numeric'});
+  const mp={現金:'cash',PayPay:'paypay',銀行:'bank'};
+  S.pending.forEach(item=>{
+    S.transactions.push({type:item.type,desc:item.description,category:item.type==='income'?(item.incomeType||'収入'):item.category,method:item.method,amount:item.amount,date:today});
+    const key=mp[item.method];
+    if(key){S.balances[key]+=item.type==='expense'?-item.amount:item.amount}
+  });
+  addChat('✅ '+S.pending.length+'件を記録しました！残高を更新しました。','ai');
+  clearI();
+  document.getElementById('diary-text').value='';
+  document.getElementById('img-preview').style.display='none';
+  document.getElementById('img-name').textContent='';
+  renderDashboard();
+}
+
+renderDashboard();
+</script>
