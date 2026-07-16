@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Secrets
+.env
+
+# Runtime temp data (privacy: face photos deleted after PDF save, but ignore just in case)
+tmp_faces/*
+!tmp_faces/.gitkeep
+
+# Generated results (contain participants' photos/PDFs - do not commit)
+kekka/*/
+kekka/index.json
+
+# 自己署名証明書(サーバー起動時に自動生成される)
+certs/

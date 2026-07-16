@@ -1,0 +1,67 @@
+[
+  {
+    "id": "q1",
+    "text": "あなたの性別は?",
+    "isGender": true,
+    "options": [
+      { "value": "male", "label": "男性" },
+      { "value": "female", "label": "女性" }
+    ]
+  },
+  {
+    "id": "q2",
+    "text": "インドア派?アウトドア派?",
+    "options": [
+      { "value": "indoor", "label": "インドア派" },
+      { "value": "outdoor", "label": "アウトドア派" }
+    ]
+  },
+  {
+    "id": "q3",
+    "text": "喋るときはボケ?ツッコミ?",
+    "options": [
+      { "value": "boke", "label": "ボケ" },
+      { "value": "tsukkomi", "label": "ツッコミ" }
+    ]
+  },
+  {
+    "id": "q4",
+    "text": "あなたにとってAIは?",
+    "options": [
+      { "value": "tool", "label": "道具" },
+      { "value": "friend", "label": "仲間" }
+    ]
+  },
+  {
+    "id": "q5",
+    "text": "恋愛相談をするのは?",
+    "options": [
+      { "value": "ai", "label": "AI" },
+      { "value": "human", "label": "人間" }
+    ]
+  },
+  {
+    "id": "q6",
+    "text": "急に雨が降ってきたけど傘が1本しかない",
+    "options": [
+      { "value": "give", "label": "傘を差してあげる" },
+      { "value": "receive", "label": "傘を差してもらう" }
+    ]
+  },
+  {
+    "id": "q7",
+    "text": "今日はデートの日、家を出る1時間前",
+    "options": [
+      { "value": "perfect", "label": "支度は完璧" },
+      { "value": "late", "label": "やばい遅刻しちゃう" }
+    ]
+  },
+  {
+    "id": "q8",
+    "text": "友達に恋人として紹介されたのがAIだった",
+    "options": [
+      { "value": "human_pref", "label": "やはり人間がいい" },
+      { "value": "ai_pref", "label": "私もAIを恋人にしようかな" }
+    ]
+  }
+]

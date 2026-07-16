@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>相性診断ゲーム</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="ambient-decoration" aria-hidden="true">
+  <span class="amb-heart" style="left:6%; top:12%; animation-delay:0s;">♥</span>
+  <span class="amb-heart" style="left:88%; top:20%; animation-delay:1.2s;">♥</span>
+  <span class="amb-heart" style="left:15%; top:70%; animation-delay:2.4s;">♥</span>
+  <span class="amb-heart" style="left:80%; top:65%; animation-delay:3.6s;">♥</span>
+  <span class="amb-heart" style="left:50%; top:85%; animation-delay:0.8s;">♥</span>
+  <span class="amb-heart small" style="left:35%; top:8%; animation-delay:2s;">♥</span>
+  <span class="amb-heart small" style="left:92%; top:45%; animation-delay:3.2s;">♥</span>
+  <span class="amb-sparkle" style="left:10%; top:35%; animation-delay:0s;">✦</span>
+  <span class="amb-sparkle" style="left:25%; top:55%; animation-delay:0.4s;">✧</span>
+  <span class="amb-sparkle" style="left:70%; top:10%; animation-delay:0.8s;">✦</span>
+  <span class="amb-sparkle" style="left:60%; top:75%; animation-delay:1.2s;">✧</span>
+  <span class="amb-sparkle" style="left:90%; top:85%; animation-delay:1.6s;">✦</span>
+  <span class="amb-sparkle" style="left:5%; top:90%; animation-delay:2s;">✧</span>
+  <span class="amb-sparkle" style="left:45%; top:5%; animation-delay:2.4s;">✦</span>
+  <span class="amb-sparkle" style="left:78%; top:38%; animation-delay:2.8s;">✧</span>
+
+  <svg style="position:absolute; width:0; height:0; overflow:hidden;" aria-hidden="true">
+    <defs>
+      <symbol id="amb-rose-svg" viewBox="0 0 100 100">
+        <radialGradient id="roseOuterGrad" cx="50%" cy="66%" r="60%">
+          <stop offset="0%" stop-color="#f2a4c4"/>
+          <stop offset="100%" stop-color="#fcdbe8"/>
+        </radialGradient>
+        <radialGradient id="roseInnerGrad" cx="50%" cy="60%" r="55%">
+          <stop offset="0%" stop-color="#e6789f"/>
+          <stop offset="100%" stop-color="#f4aecb"/>
+        </radialGradient>
+        <path d="M50,54 C31,50 18,32 23,16 C25,9 31,6 36,9 C39,11 40,15 43,13 C46,11 50,11 50,11 C50,11 54,11 57,13 C60,15 61,11 64,9 C69,6 75,9 77,16 C82,32 69,50 50,54 Z" fill="url(#roseOuterGrad)" stroke="#dd8ead" stroke-width="1" transform="rotate(0 50 54)"/>
+        <path d="M50,54 C31,50 18,32 23,16 C25,9 31,6 36,9 C39,11 40,15 43,13 C46,11 50,11 50,11 C50,11 54,11 57,13 C60,15 61,11 64,9 C69,6 75,9 77,16 C82,32 69,50 50,54 Z" fill="url(#roseOuterGrad)" stroke="#dd8ead" stroke-width="1" opacity="0.96" transform="rotate(72 50 54)"/>
+        <path d="M50,54 C31,50 18,32 23,16 C25,9 31,6 36,9 C39,11 40,15 43,13 C46,11 50,11 50,11 C50,11 54,11 57,13 C60,15 61,11 64,9 C69,6 75,9 77,16 C82,32 69,50 50,54 Z" fill="url(#roseOuterGrad)" stroke="#dd8ead" stroke-width="1" transform="rotate(144 50 54)"/>
+        <path d="M50,54 C31,50 18,32 23,16 C25,9 31,6 36,9 C39,11 40,15 43,13 C46,11 50,11 50,11 C50,11 54,11 57,13 C60,15 61,11 64,9 C69,6 75,9 77,16 C82,32 69,50 50,54 Z" fill="url(#roseOuterGrad)" stroke="#dd8ead" stroke-width="1" opacity="0.96" transform="rotate(216 50 54)"/>
+        <path d="M50,54 C31,50 18,32 23,16 C25,9 31,6 36,9 C39,11 40,15 43,13 C46,11 50,11 50,11 C50,11 54,11 57,13 C60,15 61,11 64,9 C69,6 75,9 77,16 C82,32 69,50 50,54 Z" fill="url(#roseOuterGrad)" stroke="#dd8ead" stroke-width="1" transform="rotate(288 50 54)"/>
+        <path d="M50,50 C40,48 33,38 36,29 C37,25 40,23 42,25 C43,26 44,28 45,27 C47,25 50,25 50,25 C50,25 53,25 55,27 C56,28 57,26 58,25 C60,23 63,25 64,29 C67,38 60,48 50,50 Z" fill="url(#roseInnerGrad)" stroke="#d97fa0" stroke-width="0.8" transform="rotate(36 50 50)"/>
+        <path d="M50,50 C40,48 33,38 36,29 C37,25 40,23 42,25 C43,26 44,28 45,27 C47,25 50,25 50,25 C50,25 53,25 55,27 C56,28 57,26 58,25 C60,23 63,25 64,29 C67,38 60,48 50,50 Z" fill="url(#roseInnerGrad)" stroke="#d97fa0" stroke-width="0.8" transform="rotate(108 50 50)"/>
+        <path d="M50,50 C40,48 33,38 36,29 C37,25 40,23 42,25 C43,26 44,28 45,27 C47,25 50,25 50,25 C50,25 53,25 55,27 C56,28 57,26 58,25 C60,23 63,25 64,29 C67,38 60,48 50,50 Z" fill="url(#roseInnerGrad)" stroke="#d97fa0" stroke-width="0.8" transform="rotate(180 50 50)"/>
+        <path d="M50,50 C40,48 33,38 36,29 C37,25 40,23 42,25 C43,26 44,28 45,27 C47,25 50,25 50,25 C50,25 53,25 55,27 C56,28 57,26 58,25 C60,23 63,25 64,29 C67,38 60,48 50,50 Z" fill="url(#roseInnerGrad)" stroke="#d97fa0" stroke-width="0.8" transform="rotate(252 50 50)"/>
+        <path d="M50,50 C40,48 33,38 36,29 C37,25 40,23 42,25 C43,26 44,28 45,27 C47,25 50,25 50,25 C50,25 53,25 55,27 C56,28 57,26 58,25 C60,23 63,25 64,29 C67,38 60,48 50,50 Z" fill="url(#roseInnerGrad)" stroke="#d97fa0" stroke-width="0.8" transform="rotate(324 50 50)"/>
+        <circle cx="50" cy="45" r="6.5" fill="#d9628a"/>
+        <path d="M50,42 C46,40 44,36 47,32" stroke="#c34d76" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <path d="M52,44.5 C56,42.5 57,38 54,34.5" stroke="#c34d76" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </symbol>
+    </defs>
+  </svg>
+  <svg class="amb-rose" style="left:1%; width:96px; height:96px; animation-delay:0s;"><use href="#amb-rose-svg"/></svg>
+  <svg class="amb-rose" style="left:20%; width:78px; height:78px; animation-delay:1.5s;"><use href="#amb-rose-svg"/></svg>
+  <svg class="amb-rose" style="left:40%; width:108px; height:108px; animation-delay:3s;"><use href="#amb-rose-svg"/></svg>
+  <svg class="amb-rose" style="left:62%; width:84px; height:84px; animation-delay:4.5s;"><use href="#amb-rose-svg"/></svg>
+  <svg class="amb-rose" style="left:80%; width:100px; height:100px; animation-delay:6s;"><use href="#amb-rose-svg"/></svg>
+  <svg class="amb-rose" style="left:96%; width:70px; height:70px; animation-delay:2.2s;"><use href="#amb-rose-svg"/></svg>
+</div>
+<div id="app">
+
+  <section id="screen-nickname" class="screen active">
+    <div class="card">
+      <h1>相性診断ゲーム</h1>
+      <p class="lead">あなたのニックネームを入力してください</p>
+      <input id="nickname-input" type="text" maxlength="20" placeholder="例:みさき" autocomplete="off">
+      <button id="nickname-submit" class="btn-primary" disabled>けってい</button>
+      <p id="nickname-slot" class="hint"></p>
+    </div>
+  </section>
+
+  <section id="screen-camera" class="screen">
+    <div class="card card-wide">
+      <h2>顔写真を撮影しよう</h2>
+      <p class="lead">枠の中に顔を近づけてください。無地・単色の背景で撮影するのがおすすめです。</p>
+      <div class="camera-wrap">
+        <video id="camera-video" autoplay playsinline muted></video>
+        <img id="captured-preview" hidden alt="撮影プレビュー">
+        <div id="guide-frame" class="guide-frame"></div>
+      </div>
+      <div class="camera-buttons">
+        <button id="capture-btn" class="btn-primary">📷 撮影する</button>
+        <button id="retake-btn" class="btn-secondary" hidden>撮り直す</button>
+        <button id="use-photo-btn" class="btn-primary" hidden>この写真で進む</button>
+      </div>
+      <canvas id="capture-canvas" hidden></canvas>
+    </div>
+  </section>
+
+  <section id="screen-quiz" class="screen">
+    <div class="card">
+      <p class="quiz-progress" id="quiz-progress"></p>
+      <h2 id="quiz-question"></h2>
+      <div class="quiz-options" id="quiz-options"></div>
+    </div>
+  </section>
+
+  <section id="screen-waiting" class="screen">
+    <div class="card">
+      <div class="spinner"></div>
+      <h2>相手の回答を待っています...</h2>
+      <p class="lead">もう少しお待ちください</p>
+    </div>
+  </section>
+
+  <section id="screen-loading" class="screen">
+    <div class="card">
+      <div class="spinner big"></div>
+      <h2>診断中...</h2>
+      <p class="lead">2人の相性をAIが分析しています</p>
+    </div>
+  </section>
+
+  <section id="screen-result" class="screen">
+    <div class="card card-wide">
+      <h2>診断結果</h2>
+      <div class="result-photos">
+        <div class="result-photo-block">
+          <img id="result-photo-a" alt="">
+          <p id="result-name-a" class="result-nickname"></p>
+        </div>
+        <div class="vs">×</div>
+        <div class="result-photo-block">
+          <img id="result-photo-b" alt="">
+          <p id="result-name-b" class="result-nickname"></p>
+        </div>
+      </div>
+      <p class="compatibility"><span id="result-compatibility">--</span>%</p>
+      <p id="result-comment" class="comment"></p>
+      <ul id="result-answers" class="answer-list"></ul>
+      <button id="goto-travel-btn" class="btn-primary">二人に合うおすすめの旅行スポットは</button>
+    </div>
+  </section>
+
+  <section id="screen-travel" class="screen">
+    <div class="card card-wide">
+      <h2>おすすめ旅行スポット</h2>
+      <div class="travel-frame" id="travel-frame">
+        <canvas id="travel-canvas" width="1024" height="559"></canvas>
+        <div class="sparkle-overlay" id="sparkle-overlay">
+          <span>✦</span><span>✧</span><span>✦</span><span>✧</span><span>✦</span>
+          <span>✧</span><span>✦</span><span>✧</span><span>✦</span><span>✧</span>
+        </div>
+      </div>
+      <p id="travel-spot-name" class="spot-name"></p>
+      <p id="travel-reason" class="comment"></p>
+      <div id="qr-wrap" class="qr-wrap" hidden>
+        <p class="lead">スマホでQRを読み込むと結果を保存できます</p>
+        <img id="qr-image" alt="QRコード">
+      </div>
+      <p id="save-status" class="hint"></p>
+      <button id="end-session-btn" class="btn-secondary">終了して次のペアへ</button>
+    </div>
+  </section>
+
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="vendor/jspdf.umd.min.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

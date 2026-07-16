@@ -1,0 +1,186 @@
+{
+  "_comment": "背景カテゴリ定義。このアプリは背景写真に写っている人物の顔に直接プレイヤーの顔写真をはめ込む方式のため、カテゴリを追加する場合はhukeiフォルダに画像を置き、canvas(画像の実ピクセルサイズ)とfaceSlots(写っている人物ごとの顔位置+性別ヒント)をこのファイルに追加する。faceSlotsの座標はcanvasと同じピクセル空間(=元画像そのままの座標)で指定する。詳しくはREADME.mdの「背景カテゴリの追加方法」を参照。",
+  "categories": {
+    "youfu-machinami": {
+      "label": "洋風の町並み",
+      "backgroundImage": "hukei/洋風の町並み１.jpg",
+      "description": "石畳やレンガの建物が並ぶヨーロッパ風の街並み。都会的・おしゃれ・散策好きな二人向け。",
+      "keywords": [
+        "都会的",
+        "おしゃれ",
+        "散策",
+        "カフェ巡り",
+        "夜景",
+        "アクティブ",
+        "刺激的",
+        "ロマンチック"
+      ],
+      "spots": [
+        "パリ",
+        "プラハ",
+        "ニューヨーク",
+        "ロンドン",
+        "バルセロナ",
+        "神戸・北野異人館"
+      ],
+      "canvas": {
+        "width": 1024,
+        "height": 559
+      },
+      "faceSlots": [
+        {
+          "gender": null,
+          "faceHole": {
+            "x": 335,
+            "y": 110,
+            "width": 100,
+            "height": 120
+          }
+        },
+        {
+          "gender": null,
+          "faceHole": {
+            "x": 625,
+            "y": 120,
+            "width": 95,
+            "height": 135
+          }
+        }
+      ]
+    },
+    "uchu": {
+      "label": "宇宙",
+      "backgroundImage": "hukei/宇宙１.jpg",
+      "description": "満天の星や宇宙空間をイメージした非日常的な世界。ロマンチック・神秘的・インドア派な二人向け。",
+      "keywords": [
+        "非日常",
+        "ロマンチック",
+        "神秘的",
+        "壮大",
+        "静か",
+        "インドア",
+        "空想的",
+        "AI好き"
+      ],
+      "spots": [
+        "プラネタリウム",
+        "満天の星空スポット(長野・阿智村)",
+        "宇宙ミュージアム",
+        "初島天文台"
+      ],
+      "canvas": {
+        "width": 1024,
+        "height": 559
+      },
+      "faceSlots": [
+        {
+          "gender": "male",
+          "faceHole": {
+            "x": 299,
+            "y": 108,
+            "width": 153,
+            "height": 142
+          }
+        },
+        {
+          "gender": "female",
+          "faceHole": {
+            "x": 612,
+            "y": 158,
+            "width": 140,
+            "height": 135
+          }
+        }
+      ]
+    },
+    "hanazono": {
+      "label": "花園",
+      "backgroundImage": "hukei/花園１.jpg",
+      "description": "花のアーチをくぐる庭園デート風の背景。ロマンチック・癒し系・上品な二人向け。",
+      "keywords": [
+        "ロマンチック",
+        "癒し",
+        "上品",
+        "散歩",
+        "自然",
+        "デート"
+      ],
+      "spots": [
+        "あしかがフラワーパーク",
+        "国営ひたち海浜公園",
+        "河口湖 大石公園",
+        "富良野のラベンダー畑"
+      ],
+      "canvas": {
+        "width": 1024,
+        "height": 559
+      },
+      "faceSlots": [
+        {
+          "gender": "female",
+          "faceHole": {
+            "x": 471,
+            "y": 126,
+            "width": 105,
+            "height": 122
+          },
+          "rotation": -6
+        },
+        {
+          "gender": "male",
+          "faceHole": {
+            "x": 602,
+            "y": 59,
+            "width": 109,
+            "height": 134
+          },
+          "rotation": -8
+        }
+      ]
+    },
+    "beach": {
+      "label": "南国ビーチ",
+      "backgroundImage": "hukei/海.jpg",
+      "description": "常夏のビーチでリゾート気分。開放的・アクティブ・南国好きな二人向け。",
+      "keywords": [
+        "南国",
+        "ビーチ",
+        "トロピカル",
+        "リゾート",
+        "常夏",
+        "開放的"
+      ],
+      "spots": [
+        "ハワイ",
+        "グアム",
+        "沖縄・石垣島",
+        "バリ島",
+        "モルディブ"
+      ],
+      "canvas": {
+        "width": 1024,
+        "height": 559
+      },
+      "faceSlots": [
+        {
+          "gender": "male",
+          "faceHole": {
+            "x": 315,
+            "y": 0,
+            "width": 163,
+            "height": 195
+          }
+        },
+        {
+          "gender": "female",
+          "faceHole": {
+            "x": 625,
+            "y": 65,
+            "width": 155,
+            "height": 185
+          }
+        }
+      ]
+    }
+  }
+}
