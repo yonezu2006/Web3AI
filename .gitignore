@@ -17,3 +17,6 @@ __pycache__/
 
 # Large lecture materials (kept on disk, not in repo)
 *.pdf
+
+# Moved to its own repo: https://github.com/yonezu2006/aisyousindan
+aisyousindan/
